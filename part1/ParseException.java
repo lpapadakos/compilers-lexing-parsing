@@ -1,5 +1,5 @@
 public class ParseException extends Exception {
-	public ParseException(String func) {
-		super("Parse error @" + func);
+	public ParseException(int lookahead) {
+		super("Did not expect '" + (char) lookahead + "' (" + lookahead +")");
 	}
 }

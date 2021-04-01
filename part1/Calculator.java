@@ -20,64 +20,62 @@ class Calculator {
 	private void expect(int symbol) throws IOException, ParseException {
 		if (lookahead == symbol) {
 			// TODO: Skip whitespace
+			// TODO: Work with EOF
 			//do {
 				lookahead = in.read();
 			//} while (lookahead != -1 && Character.isWhitespace(lookahead));
 		} else
-			throw new ParseException("expect()");
+			throw new ParseException(lookahead);
 
 		System.out.println("Read '" + (char) lookahead + "' (" + lookahead + ")");
 	}
 
 	public int evaluate() throws IOException, ParseException {
-		int value = exp();
+		//int value = exp();
 
 		//if (lookahead != -1 || lookahead != '\n')
 		//	throw new ParseException("evaluate()");
 
-		return value;
+		return exp();
 	    }
 
 	private int exp() throws IOException, ParseException {
-		int a = term();
-		return exp2(a);
+		int t = term();
+		return exp2(t);
 	}
 
-	private int exp2(int a) throws IOException, ParseException {
+	private int exp2(int t) throws IOException, ParseException {
 		switch (lookahead) {
 			case '+':
-			//TODO: Maybe exp2(a+b)
 				expect('+');
-				a += term();
-				return exp2(a);
+				t += term();
+
+				return exp2(t);
 			case '-':
 				expect('-');
-				a -= term();
-				return exp2(a);
-			default:
-				return a;
-		}
+				t -= term();
 
-		//throw new ParseException();
+				return exp2(t);
+			default:
+				return t;
+		}
 	}
 
 	private int term() throws IOException, ParseException {
-		int a = factor();
-		return term2(a);
+		int f = factor();
+		return term2(f);
 	}
 
-	private int term2(int a) throws IOException, ParseException {
-		switch (lookahead) {
-			case '*':
-				expect('*');
-				expect('*');
-				a = (int) Math.pow(a, factor());
-				return term2(a);
-			default:
-				return a;
-		}
+	private int term2(int f) throws IOException, ParseException {
+		if (lookahead == '*') {
+			expect('*');
+			expect('*');
+			f = (int) Math.pow(f, factor());
 
-		//throw new ParseException();
+			return term2(f);
+		} else {
+			return f;
+		}
 	}
 
 	private int factor() throws IOException, ParseException {
@@ -91,10 +89,10 @@ class Calculator {
 			return num();
 		}
 
-		throw new ParseException("factor()");
+		throw new ParseException(lookahead);
 	}
 
-	// TODO: Maybe recurse?
+	// TODO: Maybe recursion?
 	private int num() throws IOException, ParseException {
 		StringBuffer str = new StringBuffer();
 
@@ -104,7 +102,7 @@ class Calculator {
 		}
 
 		int val = Integer.parseInt(str.toString());
-		System.out.println("num: " + val);
+		System.out.println("Number: " + val);
 
 		return val;
 	}
