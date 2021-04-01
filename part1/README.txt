@@ -48,8 +48,31 @@ digit -> 0
        | 8
        | 9
 
-FIRST(exp) = FIRST(term) = FIRST(factor) = {'(', '0' ... '9'}
-FIRST(num) =
+// TODO: num sets
+
+FIRST(exp) = FIRST(term) = FIRST(factor) = {'('} U FIRST(num) = {'(', '0' ... '9'}
+FIRST(exp2) = {'+', '-', ε}
+FIRST(term2) = {"**", ε}
+FIRST(num) = FIRST(digit) = {'0' ... '9'}
+
+
+FOLLOW(exp) = FOLLOW(exp2) U {')'} = {')', $}
+FOLLOW(term) = FIRST(exp2) U FOLLOW(exp) = {'+', '-', ')', $}            # Because ε inside FIRST(exp2)
+FOLLOW(term2) = FOLLOW(term) = {'+', '-', ')' ,$}
+FOLLOW(factor) = FIRST(term2) U FOLLOW(term) = {'+', '-', "**", ')', $}  # Because ε inside FIRST(term2)
+
+
+# FIRST+ sets that we card about (where there is a choice to be made between rules)
+FIRST+(exp2 -> + term exp2) = {'+'}
+FIRST+(exp2 -> - term exp2) = {'-'}
+FIRST+(exp2 -> ε) = FIRST(ε) + FOLLOW(exp2) = {')', $}
+
+FIRST+(term2 -> ** factor term2) = {"**"}
+FIRST+(term2 -> ε) = FIRST(ε) + FOLLOW(term2) = {'+', '-', ')' ,$}
+
+FIRST+(factor -> ( exp )) = {'('}
+FIRST+(factor -> num) = {'0' ... '9'}
+
 
 Για δοκιμή:
 $ make
