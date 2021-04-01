@@ -8,7 +8,7 @@ import java.lang.Math;
 
 class Calculator {
 	private final InputStream in;
-	private int lookahead;
+	private int lookahead, index = 0;
 
 	public Calculator(InputStream in) throws IOException {
 		this.in = in;
@@ -17,79 +17,87 @@ class Calculator {
 		System.out.println("Read '" + (char) lookahead + "' (" + lookahead + ")");
 	}
 
-	private void expect(int symbol) throws IOException, ParseException {
+	private void verify(int symbol) throws IOException, ParseException {
+		System.out.println("------------------\nVerify '" + (char) symbol + "' (" + symbol + ")");
 		if (lookahead == symbol) {
 			// TODO: Skip whitespace
 			// TODO: Work with EOF
 			//do {
 				lookahead = in.read();
-			//} while (lookahead != -1 && Character.isWhitespace(lookahead));
-		} else
-			throw new ParseException(lookahead);
-
-		System.out.println("Read '" + (char) lookahead + "' (" + lookahead + ")");
+				index++;
+				System.out.println("Read '" + (char) lookahead + "' (" + lookahead + ")\n------------------");
+			//} while (Character.isWhitespace(lookahead));
+		} else {
+			throw new ParseException(lookahead, index);
+		}
 	}
 
 	public int evaluate() throws IOException, ParseException {
-		//int value = exp();
+		int value = exp();
 
 		//if (lookahead != -1 || lookahead != '\n')
-		//	throw new ParseException("evaluate()");
+		//	throw new ParseException(lookahead);
 
-		return exp();
-	    }
+		return value;
+	}
+
+	// Grammar time
 
 	private int exp() throws IOException, ParseException {
-		int t = term();
-		return exp2(t);
+		return exp2(term());
 	}
 
 	private int exp2(int t) throws IOException, ParseException {
 		switch (lookahead) {
 			case '+':
-				expect('+');
-				t += term();
-
-				return exp2(t);
+				verify('+');
+				return exp2(t + term());
 			case '-':
-				expect('-');
-				t -= term();
-
-				return exp2(t);
-			default:
+				verify('-');
+				return exp2(t - term());
+			case ')':
+			case '\n':
+			case -1:
 				return t;
 		}
+
+		throw new ParseException(lookahead, index);
 	}
 
 	private int term() throws IOException, ParseException {
-		int f = factor();
-		return term2(f);
+		return term2(factor());
 	}
 
 	private int term2(int f) throws IOException, ParseException {
-		if (lookahead == '*') {
-			expect('*');
-			expect('*');
-			f = (int) Math.pow(f, factor());
+		switch (lookahead) {
+			case '*':
+				verify('*');
+				verify('*');
 
-			return term2(f);
-		} else {
-			return f;
+				return term2((int) Math.pow(f, factor()));
+			case '+':
+			case '-':
+			case ')':
+			case '\n':
+			case -1:
+				return f;
 		}
+
+		throw new ParseException(lookahead, index);
 	}
 
 	private int factor() throws IOException, ParseException {
 		if (lookahead == '(') {
-			expect('(');
+			verify('(');
 			int e = exp();
-			expect(')');
+			verify(')');
 
 			return e;
 		} else if (Character.isDigit(lookahead)) {
 			return num();
 		}
 
-		throw new ParseException(lookahead);
+		throw new ParseException(lookahead, index);
 	}
 
 	// TODO: Maybe recursion?
@@ -98,12 +106,13 @@ class Calculator {
 
 		while (Character.isDigit(lookahead)) {
 			str.append((char) lookahead);
-			expect(lookahead);
+			System.out.println("------------------\nAppend (" + lookahead + ")");
+			verify(lookahead);
 		}
 
-		int val = Integer.parseInt(str.toString());
-		System.out.println("Number: " + val);
+		int value = Integer.parseInt(str.toString());
+		System.out.println("Number: " + value + "\n------------------");
 
-		return val;
+		return value;
 	}
 }
