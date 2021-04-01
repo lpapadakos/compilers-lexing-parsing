@@ -5,8 +5,9 @@ class Main {
 		try {
 			System.out.println("Insert valid string for calculation:");
 			System.out.println("Result: " + (new Calculator(System.in)).evaluate());
-		} catch (IOException | ParseError e) {
-			System.err.println(e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+			//System.err.println(e.getMessage());
 		}
 	}
 }
