@@ -26,6 +26,7 @@ digit -> 0
 δοθείσα γραμματική αφαιρώντας την αριστερή αναδρομή (left recursion). Επίσης
 πρέπει να φροντίσουμε να τηρείται η προτεραιότητα των τελεστών:
 
+# Γραμματική LL(1)
 exp -> term exp2
 exp2 -> + term exp2
       | - term exp2
@@ -35,32 +36,24 @@ term2 -> ** factor term2
        | ε
 factor -> ( exp )
         | num
-num -> digit
-     | digit num
-digit -> 0
-       | 1
-       | 2
-       | 3
-       | 4
-       | 5
-       | 6
-       | 7
-       | 8
-       | 9
+num -> 0..9 digit
+digit -> num
+       | ε
 
-// TODO: num sets
-
-FIRST(exp) = FIRST(term) = FIRST(factor) = {'('} U FIRST(num) = {'(', '0' ... '9'}
+# FIRST sets
+FIRST(exp) = FIRST(term) = FIRST(factor) = {'('} U FIRST(num) = {'(', '0'..'9'}
 FIRST(exp2) = {'+', '-', ε}
 FIRST(term2) = {"**", ε}
-FIRST(num) = FIRST(digit) = {'0' ... '9'}
+FIRST(num) = {'0'..'9'}
+FIRST(digit) = FIRST(num) U {ε} = {'0'..'9', ε}
 
-
+# FOLLOW sets
 FOLLOW(exp) = FOLLOW(exp2) U {')'} = {')', $}
 FOLLOW(term) = FIRST(exp2) U FOLLOW(exp) = {'+', '-', ')', $}            # Because ε inside FIRST(exp2)
 FOLLOW(term2) = FOLLOW(term) = {'+', '-', ')' ,$}
 FOLLOW(factor) = FIRST(term2) U FOLLOW(term) = {'+', '-', "**", ')', $}  # Because ε inside FIRST(term2)
-
+FOLLOW(num) = FOLLOW(factor) = {'+', '-', "**", ')', $}
+FOLLOW(digit) = FOLLOW(num) = {'+', '-', "**", ')', $}
 
 # FIRST+ sets that we card about (where there is a choice to be made between rules)
 FIRST+(exp2 -> + term exp2) = {'+'}
@@ -71,8 +64,10 @@ FIRST+(term2 -> ** factor term2) = {"**"}
 FIRST+(term2 -> ε) = FIRST(ε) + FOLLOW(term2) = {'+', '-', ')' ,$}
 
 FIRST+(factor -> ( exp )) = {'('}
-FIRST+(factor -> num) = {'0' ... '9'}
+FIRST+(factor -> num) = {'0'..'9'}
 
+FIRST+(digit -> num) = FIRST(num) = {'0'...'9'}
+FIRST+(digit -> ε) = FIRST(ε) + FOLLOW(digit) = {'+', '-', "**", ')', $}
 
 Για δοκιμή:
 $ make

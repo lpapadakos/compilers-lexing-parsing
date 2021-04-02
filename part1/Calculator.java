@@ -2,9 +2,6 @@
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.Math;
-
-//TODO: Fix exceptions
 
 class Calculator {
 	private final InputStream in;
@@ -100,19 +97,34 @@ class Calculator {
 		throw new ParseException(lookahead, index);
 	}
 
-	// TODO: Maybe recursion?
 	private int num() throws IOException, ParseException {
-		StringBuffer str = new StringBuffer();
-
-		while (Character.isDigit(lookahead)) {
+		if (Character.isDigit(lookahead)) {
+			// '0'..'9'
+			StringBuffer str = new StringBuffer();
 			str.append((char) lookahead);
-			System.out.println("------------------\nAppend (" + lookahead + ")");
 			verify(lookahead);
+
+			digit(str);
+
+			int value = Integer.parseInt(str.toString());
+			System.out.println("Number: " + value + "\n------------------");
+
+			return value;
 		}
 
-		int value = Integer.parseInt(str.toString());
-		System.out.println("Number: " + value + "\n------------------");
+		throw new ParseException(lookahead, index);
+	}
 
-		return value;
+	private void digit(StringBuffer s) throws IOException, ParseException {
+		if (Character.isDigit(lookahead)) {
+			s.append(String.valueOf(num()));
+			return;
+		} else if (lookahead == '+' || lookahead == '-' ||
+		           lookahead == '*' || lookahead == ')' ||
+		           lookahead == '\n' || lookahead == -1) {
+			return;
+		}
+
+		throw new ParseException(lookahead, index);
 	}
 }
