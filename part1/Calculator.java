@@ -16,14 +16,19 @@ class Calculator {
 
 	private void verify(int symbol) throws IOException, ParseException {
 		System.out.println("------------------\nVerify '" + (char) symbol + "' (" + symbol + ")");
+
+		// if (lookahead == -1)
+		// 	return;
+
 		if (lookahead == symbol) {
 			// TODO: Skip whitespace
 			// TODO: Work with EOF
 			//do {
 				lookahead = in.read();
 				index++;
-				System.out.println("Read '" + (char) lookahead + "' (" + lookahead + ")\n------------------");
 			//} while (Character.isWhitespace(lookahead));
+
+			System.out.println("Read '" + (char) lookahead + "' (" + lookahead + ")\n------------------");
 		} else {
 			throw new ParseException(lookahead, index);
 		}
@@ -32,8 +37,8 @@ class Calculator {
 	public int evaluate() throws IOException, ParseException {
 		int value = exp();
 
-		//if (lookahead != -1 || lookahead != '\n')
-		//	throw new ParseException(lookahead);
+		if (lookahead != '\n' && lookahead != -1)
+			throw new ParseException(lookahead, index);
 
 		return value;
 	}
@@ -99,8 +104,8 @@ class Calculator {
 
 	private int num() throws IOException, ParseException {
 		if (Character.isDigit(lookahead)) {
-			// '0'..'9'
-			StringBuffer str = new StringBuffer();
+			// Consume '0'..'9'
+			StringBuffer str = new StringBuffer(1);
 			str.append((char) lookahead);
 			verify(lookahead);
 
@@ -117,7 +122,7 @@ class Calculator {
 
 	private void digit(StringBuffer s) throws IOException, ParseException {
 		if (Character.isDigit(lookahead)) {
-			s.append(String.valueOf(num()));
+			s.append(num());
 			return;
 		} else if (lookahead == '+' || lookahead == '-' ||
 		           lookahead == '*' || lookahead == ')' ||
