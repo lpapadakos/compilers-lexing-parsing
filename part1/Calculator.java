@@ -114,9 +114,13 @@ class Calculator {
 		}
 	}
 
-	private void digit(StringBuffer s) throws IOException, ParseException {
+	private void digit(StringBuffer n) throws IOException, ParseException {
 		if (Character.isDigit(lookahead)) {
-			num(s);
+			// Piazza Instructors: Don't allow leading zeroes on multidigit numbers
+			if (n.charAt(0) == '0')
+				throw new ParseException('0', index - 1);
+
+			num(n);
 			return;
 		} else if (lookahead == '+' || lookahead == '-' ||
 		           lookahead == '*' || lookahead == ')' ||
