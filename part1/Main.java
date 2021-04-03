@@ -7,7 +7,6 @@ class Main {
 			System.out.println("\n==============================\nResult: " + (new Calculator(System.in)).evaluate());
 		} catch (Exception e) {
 			e.printStackTrace();
-			//System.err.println(e.getMessage());
 		}
 	}
 }

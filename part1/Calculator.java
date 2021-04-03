@@ -9,26 +9,20 @@ class Calculator {
 
 	public Calculator(InputStream in) throws IOException {
 		this.in = in;
-
 		lookahead = in.read();
-		System.out.println("Read '" + (char) lookahead + "' (" + lookahead + ")");
+
+		//System.out.println("Lookahead '" + (char) lookahead + "' (" + lookahead + ")");
 	}
 
 	private void verify(int symbol) throws IOException, ParseException {
-		System.out.println("------------------\nVerify '" + (char) symbol + "' (" + symbol + ")");
-
-		// if (lookahead == -1)
-		// 	return;
-
 		if (lookahead == symbol) {
-			// TODO: Skip whitespace
-			// TODO: Work with EOF
-			//do {
-				lookahead = in.read();
-				index++;
-			//} while (Character.isWhitespace(lookahead));
+			//System.out.print("Verify '" + (char) symbol + "' (" + symbol + ")");
 
-			System.out.println("Read '" + (char) lookahead + "' (" + lookahead + ")\n------------------");
+			// FIXME: Work with EOF is tricky, on first Ctrl-D read() blocks instead of returning -1
+			lookahead = in.read();
+			index++;
+
+			//System.out.println(" | Lookahead '" + (char) lookahead + "' (" + lookahead + ")");
 		} else {
 			throw new ParseException(lookahead, index);
 		}
@@ -112,7 +106,7 @@ class Calculator {
 			digit(str);
 
 			int value = Integer.parseInt(str.toString());
-			System.out.println("Number: " + value + "\n------------------");
+			//System.out.println("Number: " + value);
 
 			return value;
 		}
