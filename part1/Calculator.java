@@ -90,20 +90,8 @@ class Calculator {
 
 			return e;
 		} else if (Character.isDigit(lookahead)) {
-			return num();
-		}
-
-		throw new ParseException(lookahead, index);
-	}
-
-	private int num() throws IOException, ParseException {
-		if (Character.isDigit(lookahead)) {
-			// Consume '0'..'9'
-			StringBuffer str = new StringBuffer(1);
-			str.append((char) lookahead);
-			verify(lookahead);
-
-			digit(str);
+			StringBuffer str = new StringBuffer();
+			num(str);
 
 			int value = Integer.parseInt(str.toString());
 			//System.out.println("Number: " + value);
@@ -114,9 +102,21 @@ class Calculator {
 		throw new ParseException(lookahead, index);
 	}
 
+	private void num(StringBuffer n) throws IOException, ParseException {
+		if (Character.isDigit(lookahead)) {
+			// Consume '0'..'9'
+			n.append((char) lookahead);
+			verify(lookahead);
+
+			digit(n);
+		} else {
+			throw new ParseException(lookahead, index);
+		}
+	}
+
 	private void digit(StringBuffer s) throws IOException, ParseException {
 		if (Character.isDigit(lookahead)) {
-			s.append(num());
+			num(s);
 			return;
 		} else if (lookahead == '+' || lookahead == '-' ||
 		           lookahead == '*' || lookahead == ')' ||
