@@ -32,7 +32,7 @@ exp2 -> + term exp2
       | - term exp2
       | ε
 term -> factor term2
-term2 -> ** factor term2
+term2 -> ** term
        | ε
 factor -> ( exp )
         | num

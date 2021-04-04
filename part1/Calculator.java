@@ -70,7 +70,7 @@ class Calculator {
 				verify('*');
 				verify('*');
 
-				return term2((int) Math.pow(f, factor()));
+				return (int) Math.pow(f, term());
 			case '+':
 			case '-':
 			case ')':
