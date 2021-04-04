@@ -60,7 +60,7 @@ FIRST+(exp2 -> + term exp2) = {'+'}
 FIRST+(exp2 -> - term exp2) = {'-'}
 FIRST+(exp2 -> ε) = FIRST(ε) + FOLLOW(exp2) = {')', $}
 
-FIRST+(term2 -> ** factor term2) = {"**"}
+FIRST+(term2 -> ** term) = {"**"}
 FIRST+(term2 -> ε) = FIRST(ε) + FOLLOW(term2) = {'+', '-', ')' ,$}
 
 FIRST+(factor -> ( exp )) = {'('}
