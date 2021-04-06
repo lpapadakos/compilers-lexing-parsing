@@ -29,10 +29,10 @@ digit -> 0
 # Γραμματική LL(1)
 exp -> term exp2
 exp2 -> + term exp2
-      | - term exp2
+      | - term exp2	# Left-associative
       | ε
 term -> factor term2
-term2 -> ** term
+term2 -> ** term	# Right-associative
        | ε
 factor -> ( exp )
         | num
@@ -55,7 +55,7 @@ FOLLOW(factor) = FIRST(term2) U FOLLOW(term) = {'+', '-', "**", ')', $}  # Becau
 FOLLOW(num) = FOLLOW(factor) = {'+', '-', "**", ')', $}
 FOLLOW(digit) = FOLLOW(num) = {'+', '-', "**", ')', $}
 
-# FIRST+ sets that we card about (where there is a choice to be made between rules)
+# FIRST+ sets that we care about (where there is a choice to be made between rules)
 FIRST+(exp2 -> + term exp2) = {'+'}
 FIRST+(exp2 -> - term exp2) = {'-'}
 FIRST+(exp2 -> ε) = FIRST(ε) + FOLLOW(exp2) = {')', $}

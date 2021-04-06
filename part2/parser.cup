@@ -1,0 +1,44 @@
+/* Part 2: Parser */
+
+/**
+ *  Package and Import Specifications
+ */
+import java_cup.runtime.*;
+
+/**
+ *  Usercode Components
+ */
+parser code {:
+    // Connect this parser to a scanner!
+    Scanner s;
+    Parser(Scanner s){ this.s=s; }
+:}
+
+/* define how to connect to the scanner! */
+scan with {: return s.next_token(); :};
+
+/**
+ *  Symbol Lists
+ */
+
+/* Terminals (tokens returned by the scanner). */
+terminal            IF, ELSE, PREFIX, SUFFIX, LPAREN, COMMA, RPAREN, LCURLY, PLUS, RCURLY;
+terminal String     IDENTIFIER, STRING_LITERAL;
+
+/*  Non terminals */
+non terminal           program;
+non terminal String    expr;      // used to store evaluated subexpressions
+
+/**
+ *  Precedence Declarations
+ */
+precedence IF
+precedence left PLUS
+
+/**
+ *  The Grammar Rules
+ */
+
+//
+funcdef   ::= IDENTIFIER:i LPAREN RPAREN LCURLY expr:e RCURLY    {: RESULT = String.format("\tpublic static String %s(%s) {\n", i); :}
+funccall
