@@ -1,5 +1,6 @@
+*~
 *.class
 
 # Part 2
-part2/Scanner.java
-part2/Parser.java
+!part2/Driver.java
+part2/*.java
