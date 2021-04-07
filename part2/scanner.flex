@@ -70,10 +70,6 @@ Identifier     = [A-Za-z][A-Za-z0-9_]*
 %%
 /* ------------------------Lexical Rules Section---------------------- */
 
-
-//<YYINITIAL>
-<YYINITIAL> "boolean"            { return symbol(sym.BOOLEAN); }
-
 <YYINITIAL> {
   /* keywords */
   "if"                           { return symbol(sym.IF); }
