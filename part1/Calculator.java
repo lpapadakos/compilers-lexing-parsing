@@ -33,7 +33,7 @@ class Calculator {
 		if (lookahead == symbol) {
 			//System.out.print("Verify '" + (char) symbol + "' (" + symbol + ")");
 
-			// FIXME: Work with EOF is tricky, on first Ctrl-D read() blocks instead of returning -1
+			// NOTE: Work with EOF is tricky, on first Ctrl-D read() blocks instead of returning -1
 			lookahead = in.read();
 			index++;
 
