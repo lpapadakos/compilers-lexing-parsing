@@ -2,6 +2,8 @@
 $ make
 $ make run
 ή
+$ make execute
+ή
 $ java Main
 
 Καθαρισμός:
