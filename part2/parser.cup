@@ -4,10 +4,30 @@
  *  Package and Import Specifications
  */
 import java_cup.runtime.*;
+import java.util.regex.*;
 
 /**
  *  Usercode Components
  */
+action code {:
+  /* Find identifiers in function string, write out in Java format */
+  String javaFunc(String funcString) {
+		Pattern reg = Pattern.compile("[A-Za-z][A-Za-z0-9_]*");
+		Matcher identifier = reg.matcher(funcString);
+
+		identifier.find();
+		StringBuilder result = new StringBuilder(identifier.group(0) + "(");
+
+		if (identifier.find())
+			result.append("String " + identifier.group());
+
+		while (identifier.find())
+			result.append(", String " + identifier.group());
+
+		return result.toString();
+	}
+:}
+
 parser code {:
     // Connect this parser to a scanner!
     Scanner s;
@@ -22,8 +42,8 @@ scan with {: return s.next_token(); :};
  */
 
 /* Terminals (tokens returned by the scanner). */
-terminal               IF, ELSE, PREFIX, SUFFIX, PLUS, COMMA, RPAREN, FBODY, RCURLY;
-terminal String        IDENTIFIER, FUNC, STRING_LITERAL;
+terminal               IF, ELSE, PREFIX, SUFFIX, PLUS, COMMA, RPAREN, RCURLY;
+terminal String        IDENTIFIER, FCALL, FDEF, STRING_LITERAL;
 
 /*  Non terminals */
 non terminal           program;
@@ -33,17 +53,16 @@ non terminal String    expr_list, expr, call, call_args, cond;
 /**
  *  Precedence Declarations
  */
+//TODO: Check precedence
 precedence left PREFIX, SUFFIX;
 precedence left PLUS;
 precedence nonassoc IF, ELSE;
-precedence nonassoc FUNC;
 
 /**
  *  The Grammar Rules
  */
 
 
-//TODO: Make definitions and calls coexist. It works if a non-call expr is between them
 program       ::= def_list:d expr_list:e                             {:System.out.println("public class Main {");
                                                                        System.out.println("\tpublic static void main(String[] args) {");
                                                                        System.out.printf("%s", e);
@@ -57,20 +76,16 @@ program       ::= def_list:d expr_list:e                             {:System.ou
 def_list      ::= def_list:rest def:f                                {: RESULT = String.format("%s\n%s\n", rest, f); :}
                 |                                                    {: RESULT = ""; :}
                 ;
-def           ::= FUNC:f def_args:a FBODY def_expr:e RCURLY  {: RESULT = String.format("\tpublic static String %s%s) {\n\t\treturn %s;\n\t}", f, a, e); :}
+def           ::= FDEF:f def_expr:e RCURLY                           {: RESULT = String.format("\tpublic static String %s) {\n\t\treturn %s;\n\t}", javaFunc(f), e); :}
                 ;
-def_args      ::= def_args:rest COMMA IDENTIFIER:i                   {: RESULT = String.format("%s, String %s", rest, i); :}
-                | IDENTIFIER:i                                       {: RESULT = String.format("String %s", i); :}
-                |                                                    {: RESULT = ""; :}
-                ;
-// Variable identifiers only allowed in function definitions... Otherwise expr, call, call_args, cond would 've been enough
+/* Variable identifiers only allowed in function definitions... Otherwise expr, call, call_args, cond would've been enough */
 def_expr      ::= def_call:f                                         {: RESULT = f; :}
                 | IF def_cond:c RPAREN def_expr:e1 ELSE def_expr:e2  {: RESULT = String.format("(%s ? %s : %s)", c, e1, e2); :}
                 | def_expr:e1 PLUS def_expr:e2                       {: RESULT = String.format("%s + %s", e1, e2); :}
                 | IDENTIFIER:i                                       {: RESULT = i; :}
                 | STRING_LITERAL:s                                   {: RESULT = String.format("\"%s\"", s); :}
                 ;
-def_call      ::= FUNC:f def_call_args:a RPAREN                          {: RESULT = String.format("%s%s)", f, a); :}
+def_call      ::= FCALL:f def_call_args:a RPAREN                     {: RESULT = String.format("%s%s)", javaFunc(f), a); :}
                 ;
 def_call_args ::= def_call_args:rest COMMA def_expr:e                {: RESULT = String.format("%s, %s", rest, e); :}
                 | def_expr:e                                         {: RESULT = e; :}
@@ -90,7 +105,7 @@ expr          ::= call:f                                             {: RESULT =
                 | expr:e1 PLUS expr:e2                               {: RESULT = String.format("%s + %s", e1, e2); :}
                 | STRING_LITERAL:s                                   {: RESULT = String.format("\"%s\"", s); :}
                 ;
-call          ::= FUNC:f call_args:a RPAREN                          {: RESULT = String.format("%s%s)", f, a); :}
+call          ::= FCALL:f call_args:a RPAREN                         {: RESULT = String.format("%s%s)", javaFunc(f), a); :}
                 ;
 call_args     ::= call_args:rest COMMA expr:e                        {: RESULT = String.format("%s, %s", rest, e); :}
                 | expr:e                                             {: RESULT = e; :}

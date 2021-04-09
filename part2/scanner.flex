@@ -64,6 +64,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 /* Valid identifier consists of alphanumeric characters (and underscore), but no
  * numbers at the beginning */
 Identifier     = [A-Za-z][A-Za-z0-9_]*
+FuncStart      = {Identifier}{WhiteSpace}*"("
 
 %state STRING
 
@@ -78,8 +79,9 @@ Identifier     = [A-Za-z][A-Za-z0-9_]*
   "suffix"                       { return symbol(sym.SUFFIX); }
 
   {Identifier}                   { return symbol(sym.IDENTIFIER, yytext()); }
-  {Identifier}{WhiteSpace}*"("   { return symbol(sym.FUNC, yytext()); }
-  ")"{WhiteSpace}*"{"            { return symbol(sym.FBODY); }
+  {FuncStart}                    { return symbol(sym.FCALL, yytext()); }
+  //TODO: Make sure this regex is ok
+  {FuncStart}{WhiteSpace}*({Identifier}{WhiteSpace}*","{WhiteSpace}*)*({Identifier}{WhiteSpace}*)?{WhiteSpace}*")"{WhiteSpace}*"{"   { return symbol(sym.FDEF, yytext()); }
 
   "+"                            { return symbol(sym.PLUS); }
   ","                            { return symbol(sym.COMMA); }
