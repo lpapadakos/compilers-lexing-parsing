@@ -1,7 +1,0 @@
-findLangType(langName) {
-    "k"
-}
-
-findLangType("Java")
-findLangType("Javascript")
-findLangType("Typescript")

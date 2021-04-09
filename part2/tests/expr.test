@@ -1,7 +1,0 @@
-name() {"bob"}
-
-
-if ("b" prefix "boi") if ("b" prefix "boi") "expected..." else "nani?" else "nani?"
-name(if ("b" prefix "boi") if ("b" prefix "boi") "expected..." else "nani?" else "nani?")
-surname()
-fullname(name(), " ", surname())
