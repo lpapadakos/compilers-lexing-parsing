@@ -1,7 +1,6 @@
-Execution instructions:
+Οδηγίες εκτέλεσης:
+$ make
+$ make run
 
-$ make compile
-$ make execute
-
-To cleanup generated files:
+Καθαρισμός:
 $ make clean

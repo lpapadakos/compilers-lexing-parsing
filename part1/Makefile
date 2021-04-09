@@ -1,7 +1,11 @@
 all:
 	javac *.java
 
+run: execute
+execute:
+	@java Main
+
 clean:
 	$(RM) *.class
 
-.PHONY: all clean
+.PHONY: all execute clean
