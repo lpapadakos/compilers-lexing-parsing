@@ -72,23 +72,23 @@ Identifier     = [A-Za-z][A-Za-z0-9_]*
 
 <YYINITIAL> {
   /* keywords */
-  "if"                           { return symbol(sym.IF); }
+  "if"{WhiteSpace}*"("           { return symbol(sym.IF); }
   "else"                         { return symbol(sym.ELSE); }
   "prefix"                       { return symbol(sym.PREFIX); }
   "suffix"                       { return symbol(sym.SUFFIX); }
 
   {Identifier}                   { return symbol(sym.IDENTIFIER, yytext()); }
+  {Identifier}{WhiteSpace}*"("   { return symbol(sym.FUNC, yytext()); }
 
-  \"                             { stringBuffer.setLength(0); yybegin(STRING); }
-
-  "("                            { return symbol(sym.LPAREN); }
+  "+"                            { return symbol(sym.PLUS); }
   ","                            { return symbol(sym.COMMA); }
   ")"                            { return symbol(sym.RPAREN); }
   "{"                            { return symbol(sym.LCURLY); }
-  "+"                            { return symbol(sym.PLUS); }
   "}"                            { return symbol(sym.RCURLY); }
 
-  {WhiteSpace}   { /* ignore */ }
+  \"                             { stringBuffer.setLength(0); yybegin(STRING); }
+
+  {WhiteSpace}                   { /* ignore */ }
 }
 
 <STRING> {
@@ -104,4 +104,4 @@ Identifier     = [A-Za-z][A-Za-z0-9_]*
 
 /* No token was found for the input so throw an error.  Print out an
    Illegal character message with the illegal character that was found. */
-[^]                    { throw new Error("Illegal character <"+yytext()+">"); }
+[^]                              { throw new Error("Illegal character <"+yytext()+">"); }
