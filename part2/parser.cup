@@ -27,30 +27,40 @@ terminal String     IDENTIFIER, STRING_LITERAL;
 
 /*  Non terminals */
 non terminal           program;
-non terminal String    funcdef_list, funcdef, expr;      // used to store evaluated subexpressions
+non terminal String    funcdef_list, funcall_list, funcdef, expr, cond;
 
 /**
  *  Precedence Declarations
  */
-//precedence IF
 precedence left PLUS;
+precedence left PREFIX, SUFFIX;
 
 /**
  *  The Grammar Rules
  */
 
-program      ::= funcdef_list:f {:
+program      ::= funcdef_list:def funcall_list:call {:
                                 System.out.println("public class Main {");
-                                System.out.println("\tpublic static void main(String[] args) {");
-                                System.out.printf("%s", f);
-                                System.out.println("\t}");
+                                //System.out.println("\tpublic static void main(String[] args) {");
+                                System.out.printf("%s", def);
+                                //System.out.println("\t}");
                                 System.out.println("}");
                                 :}
 	           ;
-funcdef_list ::= funcdef_list:rest funcdef:f                        {: RESULT = String.format("%s\n\t\t%s", rest, f); :}
+funcdef_list ::= funcdef_list:rest funcdef:f                        {: RESULT = String.format("%s%s", rest, f); :}
                |                                                    {: RESULT = ""; :}
                ;
-funcdef      ::= IDENTIFIER:i LPAREN RPAREN LCURLY expr:e RCURLY    {: RESULT = String.format("public static String %s() {\n\treturn %s; }\n", i, e); :}
+funcall_list ::= ;
+funcdef      ::= IDENTIFIER:i LPAREN args RPAREN LCURLY expr:e RCURLY    {: RESULT = String.format("\tpublic static String %s() {\n\t\treturn %s;\n\t}\n\n", i, e); :}
                ;
-expr         ::= STRING_LITERAL:s                                   {: RESULT = String.format("\"%s\"", s); :}
+args         ::= IDENTIFIER COMMA args
+               | IDENTIFIER
+               ;
+expr         ::= IF LPAREN cond RPAREN expr ELSE expr
+               | expr:e1 PLUS expr:e2                               {: RESULT = String.format("%s + %s", e1, e2); :}
+               | IDENTIFIER:i                                       {: RESULT = i; :}
+               | STRING_LITERAL:s                                   {: RESULT = String.format("\"%s\"", s); :}
+               ;
+cond         ::= expr:e1 PREFIX expr:e2
+               | expr:e1 SUFFIX expr:e2
                ;
