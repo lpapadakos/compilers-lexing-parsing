@@ -79,11 +79,11 @@ Identifier     = [A-Za-z][A-Za-z0-9_]*
 
   {Identifier}                   { return symbol(sym.IDENTIFIER, yytext()); }
   {Identifier}{WhiteSpace}*"("   { return symbol(sym.FUNC, yytext()); }
+  ")"{WhiteSpace}*"{"            { return symbol(sym.FBODY); }
 
   "+"                            { return symbol(sym.PLUS); }
   ","                            { return symbol(sym.COMMA); }
   ")"                            { return symbol(sym.RPAREN); }
-  "{"                            { return symbol(sym.LCURLY); }
   "}"                            { return symbol(sym.RCURLY); }
 
   \"                             { stringBuffer.setLength(0); yybegin(STRING); }
