@@ -27,7 +27,7 @@ terminal String        IDENTIFIER, FUNC, STRING_LITERAL;
 
 /*  Non terminals */
 non terminal           program;
-non terminal String    def_list, def, def_args, def_expr, def_cond, call_list, call, call_args, expr, cond;
+non terminal String    def_list, def, def_args, def_expr, def_cond, expr_list, expr, cond, call, call_args, deactivate;
 
 /**
  *  Precedence Declarations
@@ -42,15 +42,20 @@ precedence left PREFIX, SUFFIX;
  *  The Grammar Rules
  */
 
-program       ::= def_list:defs call_list:calls              {:System.out.println("public class Main {");
+
+
+program       ::= def_list:d deactivate:e              {:System.out.println("public class Main {");
                                                                System.out.println("\tpublic static void main(String[] args) {");
-                                                               System.out.printf("%s", calls);
+                                                               System.out.printf("%s", e);
                                                                System.out.println("\t}");
-                                                               System.out.printf("%s", defs);
+                                                               System.out.printf("%s", d);
                                                                     System.out.println("}");
                                                                           :}
                     ;
 
+deactivate ::= {: RESULT = ""; :} ;
+
+/* First Part: Function Declarations */
 def_list      ::= def_list:rest def:f                                {: RESULT = String.format("%s\n%s\n", rest, f); :}
                 |                                                    {: RESULT = ""; :}
                 ;
@@ -60,7 +65,7 @@ def_args      ::= def_args:rest COMMA IDENTIFIER:i                   {: RESULT =
                 | IDENTIFIER:i                                       {: RESULT = String.format("String %s", i); :}
                 |                                                    {: RESULT = ""; :}
                 ;
-// Identifiers of variables only allowed as returned expression in function definitions. Otherwise expr, cond would be enough
+// Identifiers only allowed in function definitions... Otherwise expr, cond would be enough
 def_expr      ::= call:f                                             {: RESULT = f; :}
                 | IF def_cond:c RPAREN def_expr:e1 ELSE def_expr:e2  {: RESULT = String.format("%s ? %s : %s", c, e1, e2); :}
                 | def_expr:e1 PLUS def_expr:e2                       {: RESULT = String.format("%s + %s", e1, e2); :}
@@ -71,16 +76,10 @@ def_cond      ::= def_expr:e1 PREFIX def_expr:e2                     {: RESULT =
                 | def_expr:e1 SUFFIX def_expr:e2                     {: RESULT = String.format("(%s).endsWith(%s)", e1, e2); :}
                 ;
 
-call_list     ::= call_list:rest call:f                              {: RESULT = String.format("%s\t\t%s;\n", rest, f); :}
+/* Second Part: List of expressions to print (they all are/return Strings) */
+expr_list     ::= expr_list:rest expr:f                              {: RESULT = String.format("%s\t\tSystem.out.println(%s);\n", rest, f); :}
                 |                                                    {: RESULT = ""; :}
                 ;
-call          ::= FUNC:f call_args:a RPAREN                          {: RESULT = String.format("%s%s)", f, a); :}
-                ;
-call_args     ::= call_args:rest COMMA expr:e                        {: RESULT = String.format("%s, %s", rest, e); :}
-                | expr:e                                             {: RESULT = e; :}
-                |                                                    {: RESULT = ""; :}
-                ;
-
 //TODO parentheses for complex expr?
 //TODO fix if (if)
 expr          ::= call:f                                             {: RESULT = f; :}
@@ -88,6 +87,12 @@ expr          ::= call:f                                             {: RESULT =
                 | expr:e1 PLUS expr:e2                               {: RESULT = String.format("%s + %s", e1, e2); :}
                 | STRING_LITERAL:s                                   {: RESULT = String.format("\"%s\"", s); :}
                 ;
-cond          ::= expr:e1 PREFIX expr:e2                             {: RESULT = String.format("(%s).startsWith(%s)", e1, e2); :}
-                | expr:e1 SUFFIX expr:e2                             {: RESULT = String.format("(%s).endsWith(%s)", e1, e2); :}
+call          ::= FUNC:f call_args:a RPAREN                          {: RESULT = String.format("%s%s)", f, a); :}
+                ;
+call_args     ::= call_args:rest COMMA expr:e                        {: RESULT = String.format("%s, %s", rest, e); :}
+                | expr:e                                             {: RESULT = e; :}
+                |                                                    {: RESULT = ""; :}
+                ;
+cond          ::= expr:e1 PREFIX expr:e2                             {: RESULT = String.format("(%s).startsWith(%s)", e2, e1); :}
+                | expr:e1 SUFFIX expr:e2                             {: RESULT = String.format("(%s).endsWith(%s)", e2, e1); :}
                 ;

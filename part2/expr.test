@@ -1,0 +1,5 @@
+"boi" "loli"
+if ("b" prefix "boi") if ("b" prefix "boi") "expected..." else "nani?" else "nani?"
+name()
+surname()
+fullname(name(), " ", surname())
