@@ -41,7 +41,6 @@ scan with {: return s.next_token(); :};
 /**
  *  Symbol Lists
  */
-
 /* Terminals (tokens returned by the scanner). */
 terminal               IF, ELSE, PREFIX, SUFFIX, PLUS, COMMA, RPAREN, RCURLY;
 terminal String        IDENTIFIER, FCALL, FDEF, STRING_LITERAL;
@@ -55,15 +54,13 @@ non terminal String    expr_list, expr, call, call_args, cond;
  *  Precedence Declarations
  */
 //TODO: Check precedence
-precedence left PREFIX, SUFFIX;
-precedence left PLUS;
 precedence nonassoc IF, ELSE;
+precedence nonassoc PREFIX, SUFFIX;
+precedence left PLUS;
 
 /**
  *  The Grammar Rules
  */
-
-
 program       ::= def_list:d expr_list:e                             {:System.out.println("public class Main {");
                                                                        System.out.println("\tpublic static void main(String[] args) {");
                                                                        System.out.printf("%s", e);
