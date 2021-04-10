@@ -14,7 +14,7 @@ class Calculator {
 		//System.out.println("Lookahead '" + (char) lookahead + "' (" + lookahead + ")");
 	}
 
-	/* Defined as per Piaza instructions for uniformity */
+	/* Defined as per Piazza instructions for uniformity */
 	private int pow(int base, int exponent) {
 		if (exponent < 0)
 			return 0;
@@ -105,7 +105,7 @@ class Calculator {
 
 			return e;
 		} else if (Character.isDigit(lookahead)) {
-			StringBuffer str = new StringBuffer();
+			StringBuilder str = new StringBuilder();
 			num(str);
 
 			int value = Integer.parseInt(str.toString());
@@ -117,7 +117,7 @@ class Calculator {
 		throw new ParseException(lookahead, index);
 	}
 
-	private void num(StringBuffer n) throws IOException, ParseException {
+	private void num(StringBuilder n) throws IOException, ParseException {
 		if (Character.isDigit(lookahead)) {
 			// Consume '0'..'9'
 			n.append((char) lookahead);
@@ -129,7 +129,7 @@ class Calculator {
 		}
 	}
 
-	private void digit(StringBuffer n) throws IOException, ParseException {
+	private void digit(StringBuilder n) throws IOException, ParseException {
 		if (Character.isDigit(lookahead)) {
 			// Piazza Instructors: Don't allow leading zeroes on multidigit numbers
 			if (n.charAt(0) == '0')
