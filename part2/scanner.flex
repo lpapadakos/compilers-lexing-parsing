@@ -80,8 +80,12 @@ FuncStart      = {Identifier}{WhiteSpace}*"("
 
   {Identifier}                   { return symbol(sym.IDENTIFIER, yytext()); }
   {FuncStart}                    { return symbol(sym.FCALL, yytext()); }
-  //TODO: Make sure this regex is ok
-  {FuncStart}{WhiteSpace}*({Identifier}{WhiteSpace}*","{WhiteSpace}*)*({Identifier}{WhiteSpace}*)?{WhiteSpace}*")"{WhiteSpace}*"{"   { return symbol(sym.FDEF, yytext()); }
+
+  {FuncStart}{WhiteSpace}*
+  ({Identifier}{WhiteSpace}*","{WhiteSpace}*)*
+  {Identifier}?
+  {WhiteSpace}*")"
+  {WhiteSpace}*"{"               { return symbol(sym.FDEF, yytext()); }
 
   "+"                            { return symbol(sym.PLUS); }
   ","                            { return symbol(sym.COMMA); }

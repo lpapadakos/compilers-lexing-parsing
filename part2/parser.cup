@@ -16,8 +16,9 @@ action code {:
 		Matcher identifier = reg.matcher(funcString);
 
 		identifier.find();
-		StringBuilder result = new StringBuilder(identifier.group(0) + "(");
+		StringBuilder result = new StringBuilder(identifier.group() + "(");
 
+    /* This part is useful for function declarations, where the arguments are included in yytext() */
 		if (identifier.find())
 			result.append("String " + identifier.group());
 
@@ -47,7 +48,7 @@ terminal String        IDENTIFIER, FCALL, FDEF, STRING_LITERAL;
 
 /*  Non terminals */
 non terminal           program;
-non terminal String    def_list, def, def_args, def_expr, def_call, def_call_args, def_cond;
+non terminal String    def_list, def, def_expr, def_call, def_call_args, def_cond;
 non terminal String    expr_list, expr, call, call_args, cond;
 
 /**
@@ -78,16 +79,18 @@ def_list      ::= def_list:rest def:f                                {: RESULT =
                 ;
 def           ::= FDEF:f def_expr:e RCURLY                           {: RESULT = String.format("\tpublic static String %s) {\n\t\treturn %s;\n\t}", javaFunc(f), e); :}
                 ;
-/* Variable identifiers only allowed in function definitions... Otherwise expr, call, call_args, cond would've been enough */
+/* Variable identifiers only allowed inside function definitions...
+ * Otherwise expr, call, call_args, cond would've been enough */
 def_expr      ::= def_call:f                                         {: RESULT = f; :}
                 | IF def_cond:c RPAREN def_expr:e1 ELSE def_expr:e2  {: RESULT = String.format("(%s ? %s : %s)", c, e1, e2); :}
-                | def_expr:e1 PLUS def_expr:e2                       {: RESULT = String.format("%s + %s", e1, e2); :}
+                | def_expr:e1 PLUS def_expr:e2                       {: RESULT = e1 + " + " + e2; :}
                 | IDENTIFIER:i                                       {: RESULT = i; :}
-                | STRING_LITERAL:s                                   {: RESULT = String.format("\"%s\"", s); :}
+                | STRING_LITERAL:s                                   {: RESULT = "\"" + s + "\""; :}
                 ;
-def_call      ::= FCALL:f def_call_args:a RPAREN                     {: RESULT = String.format("%s%s)", javaFunc(f), a); :}
+/* Function call inside a definition, can have identifier as argument */
+def_call      ::= FCALL:f def_call_args:a RPAREN                     {: RESULT = javaFunc(f) + a + ')'; :}
                 ;
-def_call_args ::= def_call_args:rest COMMA def_expr:e                {: RESULT = String.format("%s, %s", rest, e); :}
+def_call_args ::= def_call_args:rest COMMA def_expr:e                {: RESULT = rest + ", " + e; :}
                 | def_expr:e                                         {: RESULT = e; :}
                 |                                                    {: RESULT = ""; :}
                 ;
@@ -102,12 +105,12 @@ expr_list     ::= expr_list:rest expr:e                              {: RESULT =
 //TODO parentheses for complex expr?
 expr          ::= call:f                                             {: RESULT = f; :}
                 | IF cond:c RPAREN expr:e1 ELSE expr:e2              {: RESULT = String.format("(%s ? %s : %s)", c, e1, e2); :}
-                | expr:e1 PLUS expr:e2                               {: RESULT = String.format("%s + %s", e1, e2); :}
-                | STRING_LITERAL:s                                   {: RESULT = String.format("\"%s\"", s); :}
+                | expr:e1 PLUS expr:e2                               {: RESULT = e1 + " + " + e2; :}
+                | STRING_LITERAL:s                                   {: RESULT = "\"" + s + "\""; :}
                 ;
-call          ::= FCALL:f call_args:a RPAREN                         {: RESULT = String.format("%s%s)", javaFunc(f), a); :}
+call          ::= FCALL:f call_args:a RPAREN                         {: RESULT = javaFunc(f) + a + ')'; :}
                 ;
-call_args     ::= call_args:rest COMMA expr:e                        {: RESULT = String.format("%s, %s", rest, e); :}
+call_args     ::= call_args:rest COMMA expr:e                        {: RESULT = rest + ", " + e; :}
                 | expr:e                                             {: RESULT = e; :}
                 |                                                    {: RESULT = ""; :}
                 ;
