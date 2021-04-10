@@ -53,7 +53,6 @@ non terminal String    expr_list, expr, call, call_args, cond;
 /**
  *  Precedence Declarations
  */
-//TODO: Check precedence
 precedence nonassoc IF, ELSE;
 precedence nonassoc PREFIX, SUFFIX;
 precedence left PLUS;
@@ -99,7 +98,6 @@ def_cond      ::= def_expr:e1 PREFIX def_expr:e2                     {: RESULT =
 expr_list     ::= expr_list:rest expr:e                              {: RESULT = String.format("%s\t\tSystem.out.println(%s);\n", rest, e); :}
                 |                                                    {: RESULT = ""; :}
                 ;
-//TODO parentheses for complex expr?
 expr          ::= call:f                                             {: RESULT = f; :}
                 | IF cond:c RPAREN expr:e1 ELSE expr:e2              {: RESULT = String.format("(%s ? %s : %s)", c, e1, e2); :}
                 | expr:e1 PLUS expr:e2                               {: RESULT = e1 + " + " + e2; :}
