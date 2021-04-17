@@ -10,23 +10,23 @@ import java.util.regex.*;
  *  Usercode Components
  */
 action code {:
-  /* Find identifiers in function string, write out in Java format */
-  String javaFunc(String funcString) {
-		Pattern reg = Pattern.compile("[A-Za-z][A-Za-z0-9_]*");
-		Matcher identifier = reg.matcher(funcString);
+    /* Find identifiers in function string, write out in Java format */
+    String javaFunc(String funcString) {
+        Pattern reg = Pattern.compile("[A-Za-z][A-Za-z0-9_]*");
+        Matcher identifier = reg.matcher(funcString);
 
-		identifier.find();
-		StringBuilder result = new StringBuilder(identifier.group() + "(");
+        identifier.find();
+        StringBuilder result = new StringBuilder(identifier.group() + "(");
 
-    /* This part is useful for function declarations, where the arguments are included in yytext() */
-		if (identifier.find())
-			result.append("String " + identifier.group());
+        /* This part is useful for function declarations, where the arguments are included in yytext() */
+        if (identifier.find())
+            result.append("String " + identifier.group());
 
-		while (identifier.find())
-			result.append(", String " + identifier.group());
+        while (identifier.find())
+            result.append(", String " + identifier.group());
 
-		return result.toString();
-	}
+        return result.toString();
+    }
 :}
 
 parser code {:
@@ -79,7 +79,7 @@ def           ::= FDEF:f def_expr:e RCURLY                                   {: 
  * Otherwise expr, call, call_args, cond would've been enough */
 def_expr      ::= LPAREN def_expr:e RPAREN                                   {: RESULT = "(" + e + ")"; :}
                 | def_call:f                                                 {: RESULT = f; :}
-                | IF def_cond:c RPAREN def_expr:e1 ELSE def_expr:e2   {: RESULT = String.format("(%s ? %s : %s)", c, e1, e2); :}
+                | IF def_cond:c RPAREN def_expr:e1 ELSE def_expr:e2          {: RESULT = String.format("(%s ? %s : %s)", c, e1, e2); :}
                 | def_expr:e1 PLUS def_expr:e2                               {: RESULT = e1 + " + " + e2; :}
                 | IDENTIFIER:i                                               {: RESULT = i; :}
                 | STRING_LITERAL:s                                           {: RESULT = "\"" + s + "\""; :}
@@ -102,7 +102,7 @@ expr_list     ::= expr_list:rest expr:e                                      {: 
                 ;
 expr          ::= LPAREN expr:e RPAREN                                       {: RESULT = "(" + e + ")"; :}
                 | call:f                                                     {: RESULT = f; :}
-                | IF cond:c RPAREN expr:e1 ELSE expr:e2               {: RESULT = String.format("(%s ? %s : %s)", c, e1, e2); :}
+                | IF cond:c RPAREN expr:e1 ELSE expr:e2                      {: RESULT = String.format("(%s ? %s : %s)", c, e1, e2); :}
                 | expr:e1 PLUS expr:e2                                       {: RESULT = e1 + " + " + e2; :}
                 | STRING_LITERAL:s                                           {: RESULT = "\"" + s + "\""; :}
                 ;
