@@ -3,17 +3,17 @@ name()  {
 }
 
 surname() {
-    "Doe"
+    ("Doe")
 }
 
 fullname(first_name, sep, last_name) {
     first_name + sep + last_name
 }
 
-name()
+((name()))
 surname()
 fullname(name(), " ", surname())
-if ("no" + "a" suffix "e" + if ("b" prefix "boo") "yes" else "no")
+if ("no" + ("a") suffix "e" + if ("b" prefix "boo") "yes" else "no")
   "foo" + name()
 else
   "bar" + surname()

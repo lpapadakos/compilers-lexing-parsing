@@ -5,7 +5,7 @@ $ make run
 $ make execute
 
 Για τη δημιουργία αρχείου .java:
-$ make run > Main.java
+$ make run < input_file > Main.java
 
 Καθαρισμός:
 $ make clean

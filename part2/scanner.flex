@@ -89,6 +89,7 @@ FuncStart      = {Identifier}{WhiteSpace}*"("
 
   "+"                            { return symbol(sym.PLUS); }
   ","                            { return symbol(sym.COMMA); }
+  "("                            { return symbol(sym.LPAREN); }
   ")"                            { return symbol(sym.RPAREN); }
   "}"                            { return symbol(sym.RCURLY); }
 

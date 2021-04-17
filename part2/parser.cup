@@ -42,7 +42,7 @@ scan with {: return s.next_token(); :};
  *  Symbol Lists
  */
 /* Terminals (tokens returned by the scanner). */
-terminal               IF, ELSE, PREFIX, SUFFIX, PLUS, COMMA, RPAREN, RCURLY;
+terminal               IF, ELSE, PREFIX, SUFFIX, PLUS, COMMA, LPAREN, RPAREN, RCURLY;
 terminal String        IDENTIFIER, FCALL, FDEF, STRING_LITERAL;
 
 /*  Non terminals */
@@ -60,55 +60,59 @@ precedence left PLUS;
 /**
  *  The Grammar Rules
  */
-program       ::= def_list:d expr_list:e                             {:System.out.println("public class Main {");
-                                                                       System.out.println("\tpublic static void main(String[] args) {");
-                                                                       System.out.printf("%s", e);
-                                                                       System.out.println("\t}");
-                                                                       System.out.printf("%s", d);
-                                                                       System.out.println("}");
-                                                                     :}
+program       ::= def_list:d expr_list:e                                     {:System.out.println("public class Main {");
+                                                                               System.out.println("\tpublic static void main(String[] args) {");
+                                                                               System.out.printf("%s", e);
+                                                                               System.out.println("\t}");
+                                                                               System.out.printf("%s", d);
+                                                                               System.out.println("}");
+                                                                             :}
                 ;
 
 /* First Part: Function Declarations */
-def_list      ::= def_list:rest def:f                                {: RESULT = String.format("%s\n%s\n", rest, f); :}
-                |                                                    {: RESULT = ""; :}
+def_list      ::= def_list:rest def:f                                        {: RESULT = String.format("%s\n%s\n", rest, f); :}
+                |                                                            {: RESULT = ""; :}
                 ;
-def           ::= FDEF:f def_expr:e RCURLY                           {: RESULT = String.format("\tpublic static String %s) {\n\t\treturn %s;\n\t}", javaFunc(f), e); :}
+def           ::= FDEF:f def_expr:e RCURLY                                   {: RESULT = String.format("\tpublic static String %s) {\n\t\treturn %s;\n\t}", javaFunc(f), e); :}
                 ;
 /* Variable identifiers only allowed inside function definitions...
  * Otherwise expr, call, call_args, cond would've been enough */
-def_expr      ::= def_call:f                                         {: RESULT = f; :}
-                | IF def_cond:c RPAREN def_expr:e1 ELSE def_expr:e2  {: RESULT = String.format("(%s ? %s : %s)", c, e1, e2); :}
-                | def_expr:e1 PLUS def_expr:e2                       {: RESULT = e1 + " + " + e2; :}
-                | IDENTIFIER:i                                       {: RESULT = i; :}
-                | STRING_LITERAL:s                                   {: RESULT = "\"" + s + "\""; :}
+def_expr      ::= LPAREN def_expr:e RPAREN                                   {: RESULT = "(" + e + ")"; :}
+                | def_call:f                                                 {: RESULT = f; :}
+                | IF def_cond:c RPAREN def_expr:e1 ELSE def_expr:e2   {: RESULT = String.format("(%s ? %s : %s)", c, e1, e2); :}
+                | def_expr:e1 PLUS def_expr:e2                               {: RESULT = e1 + " + " + e2; :}
+                | IDENTIFIER:i                                               {: RESULT = i; :}
+                | STRING_LITERAL:s                                           {: RESULT = "\"" + s + "\""; :}
                 ;
 /* Function call inside a definition, can have identifier as argument */
-def_call      ::= FCALL:f def_call_args:a RPAREN                     {: RESULT = javaFunc(f) + a + ')'; :}
+def_call      ::= FCALL:f def_call_args:a RPAREN                             {: RESULT = javaFunc(f) + a + ')'; :}
                 ;
-def_call_args ::= def_call_args:rest COMMA def_expr:e                {: RESULT = rest + ", " + e; :}
-                | def_expr:e                                         {: RESULT = e; :}
-                |                                                    {: RESULT = ""; :}
+def_call_args ::= def_call_args:rest COMMA def_expr:e                        {: RESULT = rest + ", " + e; :}
+                | def_expr:e                                                 {: RESULT = e; :}
+                |                                                            {: RESULT = ""; :}
                 ;
-def_cond      ::= def_expr:e1 PREFIX def_expr:e2                     {: RESULT = String.format("(%s).startsWith(%s)", e2, e1); :}
-                | def_expr:e1 SUFFIX def_expr:e2                     {: RESULT = String.format("(%s).endsWith(%s)", e2, e1); :}
+def_cond      ::= LPAREN def_cond:c RPAREN                                   {: RESULT = "(" + c + ")"; :}
+                | def_expr:e1 PREFIX def_expr:e2                             {: RESULT = String.format("(%s).startsWith(%s)", e2, e1); :}
+                | def_expr:e1 SUFFIX def_expr:e2                             {: RESULT = String.format("(%s).endsWith(%s)", e2, e1); :}
                 ;
 
 /* Second Part: List of expressions to print (they all are/return Strings) */
-expr_list     ::= expr_list:rest expr:e                              {: RESULT = String.format("%s\t\tSystem.out.println(%s);\n", rest, e); :}
-                |                                                    {: RESULT = ""; :}
+expr_list     ::= expr_list:rest expr:e                                      {: RESULT = String.format("%s\t\tSystem.out.println(%s);\n", rest, e); :}
+                |                                                            {: RESULT = ""; :}
                 ;
-expr          ::= call:f                                             {: RESULT = f; :}
-                | IF cond:c RPAREN expr:e1 ELSE expr:e2              {: RESULT = String.format("(%s ? %s : %s)", c, e1, e2); :}
-                | expr:e1 PLUS expr:e2                               {: RESULT = e1 + " + " + e2; :}
-                | STRING_LITERAL:s                                   {: RESULT = "\"" + s + "\""; :}
+expr          ::= LPAREN expr:e RPAREN                                       {: RESULT = "(" + e + ")"; :}
+                | call:f                                                     {: RESULT = f; :}
+                | IF cond:c RPAREN expr:e1 ELSE expr:e2               {: RESULT = String.format("(%s ? %s : %s)", c, e1, e2); :}
+                | expr:e1 PLUS expr:e2                                       {: RESULT = e1 + " + " + e2; :}
+                | STRING_LITERAL:s                                           {: RESULT = "\"" + s + "\""; :}
                 ;
-call          ::= FCALL:f call_args:a RPAREN                         {: RESULT = javaFunc(f) + a + ')'; :}
+call          ::= FCALL:f call_args:a RPAREN                                 {: RESULT = javaFunc(f) + a + ')'; :}
                 ;
-call_args     ::= call_args:rest COMMA expr:e                        {: RESULT = rest + ", " + e; :}
-                | expr:e                                             {: RESULT = e; :}
-                |                                                    {: RESULT = ""; :}
+call_args     ::= call_args:rest COMMA expr:e                                {: RESULT = rest + ", " + e; :}
+                | expr:e                                                     {: RESULT = e; :}
+                |                                                            {: RESULT = ""; :}
                 ;
-cond          ::= expr:e1 PREFIX expr:e2                             {: RESULT = String.format("(%s).startsWith(%s)", e2, e1); :}
-                | expr:e1 SUFFIX expr:e2                             {: RESULT = String.format("(%s).endsWith(%s)", e2, e1); :}
+cond          ::= LPAREN cond:c RPAREN                                       {: RESULT = "(" + c + ")"; :}
+                | expr:e1 PREFIX expr:e2                                     {: RESULT = String.format("(%s).startsWith(%s)", e2, e1); :}
+                | expr:e1 SUFFIX expr:e2                                     {: RESULT = String.format("(%s).endsWith(%s)", e2, e1); :}
                 ;
